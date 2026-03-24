@@ -1,0 +1,16 @@
+{
+  "name": "heroegg-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync-peatix": "tsx sync-peatix.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "playwright": "^1.48.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
