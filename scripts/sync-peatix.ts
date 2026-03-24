@@ -53,21 +53,9 @@ async function scrapePeatixEvents(): Promise<PeatixEvent[]> {
       console.log("⚠️  イベント要素の検出にフォールバックします");
     });
 
-    // 少し待ってJSレンダリング完了を確保
+    // JSレンダリング完了を待機
     await page.waitForTimeout(5000);
 
-    // デバッグ: ページ上の全リンクを出力
-    const allLinks = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll("a"))
-        .map((a) => ({ href: a.href, text: a.textContent?.trim().substring(0, 80) }))
-        .filter((l) => l.href.includes("peatix") || l.href.includes("event"));
-    });
-    console.log(`🔗 イベント関連リンク: ${allLinks.length} 件`);
-    for (const link of allLinks.slice(0, 20)) {
-      console.log(`  ${link.href} | ${link.text}`);
-    }
-
-    // デバッグ: ページタイトルとURL
     console.log(`📍 URL: ${page.url()}`);
     console.log(`📍 Title: ${await page.title()}`);
 
