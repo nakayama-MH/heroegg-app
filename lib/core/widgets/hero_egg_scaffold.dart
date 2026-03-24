@@ -14,8 +14,26 @@ class HeroEggScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
+      floatingActionButton: SizedBox(
+        width: 56,
+        height: 56,
+        child: FloatingActionButton(
+          onPressed: () => context.push('/scan'),
+          elevation: 2,
+          highlightElevation: 4,
+          backgroundColor: AppColors.primary,
+          shape: const CircleBorder(),
+          child: const Icon(
+            Icons.qr_code_scanner_rounded,
+            size: 24,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
+          color: AppColors.surface,
           border: Border(
             top: BorderSide(color: AppColors.border, width: 0.5),
           ),
@@ -28,8 +46,8 @@ class HeroEggScaffold extends StatelessWidget {
               initialLocation: index == navigationShell.currentIndex,
             );
           },
-          backgroundColor: AppColors.background,
-          indicatorColor: AppColors.primary.withValues(alpha: 0.1),
+          backgroundColor: Colors.transparent,
+          indicatorColor: AppColors.primary.withValues(alpha: 0.08),
           elevation: 0,
           height: 64,
           destinations: const [

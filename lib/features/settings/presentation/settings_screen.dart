@@ -18,76 +18,85 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('設定', style: AppTextStyles.headlineSmall),
+        title: const Text('設定'),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
         children: [
           _buildSectionHeader('アカウント'),
-          _buildTile(
-            icon: Icons.person_outline_rounded,
-            title: 'アカウント情報',
-            subtitle: profileAsync.whenOrNull(
-              data: (p) => p?.email ?? '',
+          _buildGroup([
+            _buildTile(
+              icon: Icons.person_outline_rounded,
+              title: 'アカウント情報',
+              subtitle: profileAsync.whenOrNull(
+                data: (p) => p?.email ?? '',
+              ),
+              onTap: () {},
             ),
-            onTap: () {},
-          ),
+          ]),
           const SizedBox(height: 24),
           _buildSectionHeader('アプリ設定'),
-          _buildTile(
-            icon: Icons.location_on_outlined,
-            title: '位置情報',
-            subtitle: locationPermAsync.whenOrNull(
-              data: (perm) {
-                switch (perm) {
-                  case LocationPermission.always:
-                    return '常に許可';
-                  case LocationPermission.whileInUse:
-                    return '使用中のみ許可';
-                  case LocationPermission.denied:
-                    return '拒否';
-                  case LocationPermission.deniedForever:
-                    return '完全に拒否';
-                  case LocationPermission.unableToDetermine:
-                    return '未確認';
-                }
-              },
+          _buildGroup([
+            _buildTile(
+              icon: Icons.location_on_outlined,
+              title: '位置情報',
+              subtitle: locationPermAsync.whenOrNull(
+                data: (perm) {
+                  switch (perm) {
+                    case LocationPermission.always:
+                      return '常に許可';
+                    case LocationPermission.whileInUse:
+                      return '使用中のみ許可';
+                    case LocationPermission.denied:
+                      return '拒否';
+                    case LocationPermission.deniedForever:
+                      return '完全に拒否';
+                    case LocationPermission.unableToDetermine:
+                      return '未確認';
+                  }
+                },
+              ),
+              onTap: () => Geolocator.openAppSettings(),
             ),
-            onTap: () => Geolocator.openAppSettings(),
-          ),
-          _buildTile(
-            icon: Icons.notifications_outlined,
-            title: '通知設定',
-            subtitle: 'プッシュ通知の設定',
-            onTap: () => Geolocator.openAppSettings(),
-          ),
+            _buildTile(
+              icon: Icons.notifications_outlined,
+              title: '通知設定',
+              subtitle: 'プッシュ通知の設定',
+              onTap: () => Geolocator.openAppSettings(),
+              isLast: true,
+            ),
+          ]),
           const SizedBox(height: 24),
           _buildSectionHeader('サポート'),
-          _buildTile(
-            icon: Icons.help_outline_rounded,
-            title: 'お問い合わせ',
-            subtitle: '一般のお問い合わせ・共創パートナー募集',
-            onTap: () => context.push('/contact'),
-          ),
-          _buildTile(
-            icon: Icons.info_outline_rounded,
-            title: 'アプリ情報',
-            subtitle: 'バージョン 1.0.0',
-            onTap: () {},
-          ),
+          _buildGroup([
+            _buildTile(
+              icon: Icons.help_outline_rounded,
+              title: 'お問い合わせ',
+              subtitle: '一般のお問い合わせ・共創パートナー募集',
+              onTap: () => context.push('/contact'),
+            ),
+            _buildTile(
+              icon: Icons.info_outline_rounded,
+              title: 'アプリ情報',
+              subtitle: 'バージョン 1.0.0',
+              onTap: () {},
+              isLast: true,
+            ),
+          ]),
           const SizedBox(height: 32),
           SizedBox(
-            height: 52,
+            height: 50,
             child: OutlinedButton(
               onPressed: () => _showLogoutDialog(context, ref),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.secondary,
-                side: const BorderSide(color: AppColors.secondary),
+                side: BorderSide(
+                  color: AppColors.secondary.withValues(alpha: 0.3),
+                ),
               ),
               child: const Text('ログアウト'),
             ),
           ),
-          const SizedBox(height: 40),
         ],
       ),
     );
@@ -95,13 +104,27 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         title,
-        style: AppTextStyles.labelLarge.copyWith(
-          color: AppColors.textSecondary,
+        style: AppTextStyles.labelSmall.copyWith(
+          color: AppColors.textTertiary,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+          fontSize: 12,
         ),
       ),
+    );
+  }
+
+  Widget _buildGroup(List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(children: children),
     );
   }
 
@@ -110,25 +133,35 @@ class SettingsScreen extends ConsumerWidget {
     required String title,
     String? subtitle,
     required VoidCallback onTap,
+    bool isLast = false,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 2),
-      child: ListTile(
-        leading: Icon(icon, color: AppColors.textPrimary),
-        title: Text(title, style: AppTextStyles.bodyLarge),
-        subtitle: subtitle != null
-            ? Text(subtitle, style: AppTextStyles.bodySmall)
-            : null,
-        trailing: const Icon(
-          Icons.chevron_right_rounded,
-          color: AppColors.textSecondary,
+    return Column(
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: ListTile(
+            leading: Icon(icon, color: AppColors.textSecondary, size: 22),
+            title: Text(
+                title,
+                style: AppTextStyles.bodyMedium
+                    .copyWith(fontWeight: FontWeight.w500)),
+            subtitle: subtitle != null
+                ? Text(subtitle, style: AppTextStyles.bodySmall)
+                : null,
+            trailing: const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textTertiary,
+              size: 20,
+            ),
+            onTap: onTap,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+          ),
         ),
-        onTap: onTap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      ),
+        if (!isLast)
+          const Divider(
+              height: 1, indent: 54, endIndent: 16, color: AppColors.border),
+      ],
     );
   }
 
@@ -136,25 +169,22 @@ class SettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('ログアウト', style: AppTextStyles.headlineSmall),
+        title: const Text('ログアウト'),
         content: const Text('ログアウトしますか？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               'キャンセル',
-              style: AppTextStyles.labelLarge.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () {
               Navigator.of(context).pop();
               ref.read(authStateNotifierProvider.notifier).signOut();
             },
-            style: ElevatedButton.styleFrom(
+            style: FilledButton.styleFrom(
               backgroundColor: AppColors.secondary,
             ),
             child: const Text('ログアウト'),

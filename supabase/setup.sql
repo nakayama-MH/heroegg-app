@@ -11,8 +11,12 @@ CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT,
   display_name TEXT,
+  gender TEXT,           -- 'male', 'female', 'other'
+  region TEXT,           -- 都道府県名 or '海外'
+  birth_date DATE,
   phone TEXT,
   avatar_url TEXT,
+  role TEXT DEFAULT 'user',     -- 'user', 'staff', 'admin'
   account_type TEXT DEFAULT 'general',
   member_rank TEXT DEFAULT 'regular',
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -23,11 +27,15 @@ CREATE TABLE IF NOT EXISTS profiles (
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, display_name)
+  INSERT INTO public.profiles (id, email, display_name, gender, region, birth_date, phone)
   VALUES (
     NEW.id,
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1))
+    COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1)),
+    NEW.raw_user_meta_data->>'gender',
+    NEW.raw_user_meta_data->>'region',
+    (NEW.raw_user_meta_data->>'birth_date')::DATE,
+    NEW.raw_user_meta_data->>'phone'
   );
   RETURN NEW;
 END;
@@ -138,6 +146,14 @@ CREATE TABLE IF NOT EXISTS check_ins (
   checked_out_at TIMESTAMPTZ
 );
 
+-- 同時に1つのアクティブチェックインのみ許可
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_active_checkin
+  ON check_ins (user_id) WHERE checked_out_at IS NULL;
+
+-- 履歴クエリ用インデックス
+CREATE INDEX IF NOT EXISTS idx_check_ins_user_checked_in
+  ON check_ins (user_id, checked_in_at DESC);
+
 -- ============================================================
 -- RPC: 近隣施設検索
 -- ============================================================
@@ -238,6 +254,33 @@ CREATE POLICY "Users can insert own check_ins"
 CREATE POLICY "Users can update own check_ins"
   ON check_ins FOR UPDATE
   USING (auth.uid() = user_id);
+
+-- ============================================================
+-- Storage: アバター画像バケット
+-- ============================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('avatars', 'avatars', true)
+ON CONFLICT DO NOTHING;
+
+CREATE POLICY "Users can upload own avatar"
+  ON storage.objects FOR INSERT
+  TO authenticated
+  WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+CREATE POLICY "Anyone can view avatars"
+  ON storage.objects FOR SELECT
+  TO authenticated
+  USING (bucket_id = 'avatars');
+
+CREATE POLICY "Users can update own avatar"
+  ON storage.objects FOR UPDATE
+  TO authenticated
+  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+CREATE POLICY "Users can delete own avatar"
+  ON storage.objects FOR DELETE
+  TO authenticated
+  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
 
 -- ============================================================
 -- テストデータ

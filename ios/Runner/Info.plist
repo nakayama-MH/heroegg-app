@@ -16,10 +16,25 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>HeroEgg</string>
+	<key>NSCameraUsageDescription</key>
+	<string>QRコードをスキャンしてチェックインするためにカメラを使用します</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>プロフィール画像を設定するためにフォトライブラリにアクセスします</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>近くのEgg施設を表示するために位置情報を使用します</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>近くのEgg施設を表示するために位置情報を使用します</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>io.heroegg</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

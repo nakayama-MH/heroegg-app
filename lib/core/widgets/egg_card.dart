@@ -26,8 +26,7 @@ class EggCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(14),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -40,7 +39,7 @@ class EggCard extends StatelessWidget {
                       imageUrl: imageUrl!,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
-                        color: AppColors.surface,
+                        color: AppColors.surfaceDim,
                         child: const Center(
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
@@ -49,26 +48,27 @@ class EggCard extends StatelessWidget {
                         ),
                       ),
                       errorWidget: (context, url, error) => Container(
-                        color: AppColors.surface,
+                        color: AppColors.surfaceDim,
                         child: const Icon(
                           Icons.image_not_supported_outlined,
-                          color: AppColors.textSecondary,
+                          color: AppColors.textTertiary,
                         ),
                       ),
                     )
                   : Container(
-                      color: AppColors.surface,
-                      child: const Center(
-                        child: Icon(
-                          Icons.egg_outlined,
-                          size: 48,
-                          color: AppColors.primary,
+                      color: AppColors.surfaceDim,
+                      child: Center(
+                        child: Image.asset(
+                          'assets/images/hero_egg.png',
+                          width: 48,
+                          height: 48,
+                          opacity: const AlwaysStoppedAnimation(0.5),
                         ),
                       ),
                     ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -81,12 +81,6 @@ class EggCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.location_on_outlined,
-                        size: 14,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           address,
@@ -97,21 +91,11 @@ class EggCard extends StatelessWidget {
                       ),
                       if (distance != null) ...[
                         const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            distance!,
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        Text(
+                          distance!,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],

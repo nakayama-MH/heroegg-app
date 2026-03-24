@@ -21,6 +21,10 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<void>> {
     required String email,
     required String password,
     String? displayName,
+    String? gender,
+    String? region,
+    String? birthDate,
+    String? phone,
   }) async {
     state = const AsyncValue.loading();
     try {
@@ -28,6 +32,10 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<void>> {
         email: email,
         password: password,
         displayName: displayName,
+        gender: gender,
+        region: region,
+        birthDate: birthDate,
+        phone: phone,
       );
       state = const AsyncValue.data(null);
     } catch (e, st) {

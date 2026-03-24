@@ -55,28 +55,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = authState is AsyncLoading;
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 28),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 60),
+                const SizedBox(height: 72),
                 Center(
                   child: Image.asset(
                     'assets/images/logo_vertical.png',
-                    height: 120,
+                    height: 100,
                   ),
                 ),
                 const SizedBox(height: 48),
                 Text(
-                  'ログイン',
-                  style: AppTextStyles.headlineMedium,
+                  'おかえりなさい',
+                  style: AppTextStyles.headlineLarge,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 8),
+                Text(
+                  'アカウントにログインしてください',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 40),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -99,6 +108,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         _obscurePassword
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
+                        color: AppColors.textTertiary,
                       ),
                       onPressed: () {
                         setState(() {
@@ -109,18 +119,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   validator: Validators.password,
                 ),
-                const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () => context.push('/password-reset'),
-                    child: const Text('パスワードをお忘れですか？'),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 4,
+                      ),
+                    ),
+                    child: Text(
+                      'パスワードをお忘れですか？',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 SizedBox(
-                  height: 52,
-                  child: ElevatedButton(
+                  height: 50,
+                  child: FilledButton(
                     onPressed: isLoading ? null : _handleLogin,
                     child: isLoading
                         ? const SizedBox(

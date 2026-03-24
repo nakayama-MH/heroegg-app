@@ -9,17 +9,27 @@ class AuthRepository {
 
   Stream<AuthState> get authStateChanges => _auth.onAuthStateChange;
 
+  static const _redirectUrl = 'io.heroegg://login-callback';
+
   Future<AuthResponse> signUp({
     required String email,
     required String password,
     String? displayName,
+    String? gender,
+    String? region,
+    String? birthDate,
+    String? phone,
   }) async {
     return await _auth.signUp(
       email: email,
       password: password,
+      emailRedirectTo: _redirectUrl,
       data: {
-        // ignore: use_null_aware_elements
         if (displayName != null) 'display_name': displayName,
+        if (gender != null) 'gender': gender,
+        if (region != null) 'region': region,
+        if (birthDate != null) 'birth_date': birthDate,
+        if (phone != null) 'phone': phone,
       },
     );
   }
@@ -39,6 +49,6 @@ class AuthRepository {
   }
 
   Future<void> resetPassword(String email) async {
-    await _auth.resetPasswordForEmail(email);
+    await _auth.resetPasswordForEmail(email, redirectTo: _redirectUrl);
   }
 }

@@ -5,6 +5,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../providers/home_provider.dart';
+import '../../checkin/presentation/widgets/check_in_status_banner.dart';
 import 'widgets/egg_list_view.dart';
 import 'widgets/egg_map_view.dart';
 
@@ -30,33 +31,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final facilitiesAsync = ref.watch(nearbyFacilitiesProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Image.asset(
-          'assets/images/logo_horizontal.png',
-          height: 32,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              viewMode == HomeViewMode.list
-                  ? Icons.map_outlined
-                  : Icons.list_rounded,
-            ),
-            onPressed: () {
-              ref.read(homeViewModeProvider.notifier).state =
-                  viewMode == HomeViewMode.list
-                      ? HomeViewMode.map
-                      : HomeViewMode.list;
-            },
-            tooltip: viewMode == HomeViewMode.list ? '地図表示' : 'リスト表示',
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: AppBar(
+          toolbarHeight: 56,
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          title: Image.asset(
+            'assets/images/logo_horizontal.png',
+            height: 28,
+            fit: BoxFit.contain,
           ),
-        ],
+          actions: [
+            IconButton(
+              icon: Icon(
+                viewMode == HomeViewMode.list
+                    ? Icons.map_outlined
+                    : Icons.list_rounded,
+                size: 22,
+              ),
+              onPressed: () {
+                ref.read(homeViewModeProvider.notifier).state =
+                    viewMode == HomeViewMode.list
+                        ? HomeViewMode.map
+                        : HomeViewMode.list;
+              },
+              tooltip: viewMode == HomeViewMode.list ? '地図表示' : 'リスト表示',
+            ),
+            const SizedBox(width: 4),
+          ],
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const CheckInStatusBanner(),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             child: Text(
               '近くのEgg施設',
               style: AppTextStyles.headlineSmall,
@@ -70,10 +81,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.egg_outlined,
-                          size: 64,
-                          color: AppColors.textSecondary,
+                        Opacity(
+                          opacity: 0.15,
+                          child: Image.asset(
+                            'assets/images/hero_egg.png',
+                            width: 64,
+                            height: 64,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -92,10 +106,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     : EggMapView(facilities: facilities);
               },
               loading: () => const LoadingIndicator(message: '施設を検索中...'),
-              error: (error, _) => ErrorView(
+              error: (error, _) {
+                return ErrorView(
                 message: '施設の取得に失敗しました',
                 onRetry: () => ref.invalidate(nearbyFacilitiesProvider),
-              ),
+              );
+              },
             ),
           ),
         ],

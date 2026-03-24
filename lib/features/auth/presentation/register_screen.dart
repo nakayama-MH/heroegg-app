@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/utils/validators.dart';
 import '../providers/auth_provider.dart';
+
+const _prefectures = [
+  '北海道',
+  '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
+  '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+  '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県',
+  '岐阜県', '静岡県', '愛知県', '三重県',
+  '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県',
+  '鳥取県', '島根県', '岡山県', '広島県', '山口県',
+  '徳島県', '香川県', '愛媛県', '高知県',
+  '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県',
+  '海外',
+];
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -17,27 +31,93 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
+  String? _gender;
+  String? _region;
+  DateTime? _birthDate;
+
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
+  Future<void> _pickBirthDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _birthDate ?? DateTime(2000, 1, 1),
+      firstDate: DateTime(1920),
+      lastDate: now,
+      locale: const Locale('ja'),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: AppColors.primary,
+                ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() => _birthDate = picked);
+    }
+  }
+
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_gender == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('性別を選択してください'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    if (_region == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('地域を選択してください'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    if (_birthDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('生年月日を選択してください'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
 
     await ref.read(authStateNotifierProvider.notifier).signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
           displayName: _nameController.text.trim(),
+          gender: _gender,
+          region: _region,
+          birthDate: _birthDate!.toIso8601String().split('T').first,
+          phone: _phoneController.text.trim().isNotEmpty
+              ? _phoneController.text.trim()
+              : null,
         );
 
     if (mounted) {
@@ -71,7 +151,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final isLoading = authState is AsyncLoading;
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
+        backgroundColor: AppColors.surface,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
@@ -79,34 +161,66 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 28),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 24),
+                const SizedBox(height: 8),
                 Text(
                   '新規登録',
-                  style: AppTextStyles.headlineMedium,
+                  style: AppTextStyles.headlineLarge,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'HeroEggアカウントを作成',
-                  style: AppTextStyles.bodySmall,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
+
+                // 名前
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
-                    labelText: '表示名',
+                    labelText: '名前',
                     prefixIcon: Icon(Icons.person_outline_rounded),
                   ),
-                  validator: (v) => Validators.required(v, '表示名'),
+                  validator: (v) => Validators.required(v, '名前'),
                 ),
                 const SizedBox(height: 16),
+
+                // 性別
+                _buildLabel('性別'),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    _buildGenderChip('male', 'おとこ'),
+                    const SizedBox(width: 10),
+                    _buildGenderChip('female', 'おんな'),
+                    const SizedBox(width: 10),
+                    _buildGenderChip('other', 'そのほか'),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // 地域
+                _buildLabel('地域'),
+                const SizedBox(height: 8),
+                _buildRegionDropdown(),
+                const SizedBox(height: 16),
+
+                // 生年月日
+                _buildLabel('生年月日'),
+                const SizedBox(height: 8),
+                _buildBirthDatePicker(),
+                const SizedBox(height: 16),
+
+                // メールアドレス
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -118,6 +232,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   validator: Validators.email,
                 ),
                 const SizedBox(height: 16),
+
+                // 電話番号
+                TextFormField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: '電話番号',
+                    prefixIcon: Icon(Icons.phone_outlined),
+                  ),
+                  validator: Validators.phone,
+                ),
+                const SizedBox(height: 16),
+
+                // パスワード
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -129,6 +257,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         _obscurePassword
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
+                        color: AppColors.textTertiary,
                       ),
                       onPressed: () {
                         setState(() => _obscurePassword = !_obscurePassword);
@@ -138,6 +267,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   validator: Validators.password,
                 ),
                 const SizedBox(height: 16),
+
+                // パスワード確認
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirm,
@@ -149,6 +280,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         _obscureConfirm
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
+                        color: AppColors.textTertiary,
                       ),
                       onPressed: () {
                         setState(() => _obscureConfirm = !_obscureConfirm);
@@ -163,9 +295,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 32),
+
+                // 登録ボタン
                 SizedBox(
-                  height: 52,
-                  child: ElevatedButton(
+                  height: 50,
+                  child: FilledButton(
                     onPressed: isLoading ? null : _handleRegister,
                     child: isLoading
                         ? const SizedBox(
@@ -179,7 +313,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         : const Text('アカウントを作成'),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -193,9 +327,115 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLabel(String label) {
+    return Text(
+      label,
+      style: AppTextStyles.bodySmall.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+
+  Widget _buildGenderChip(String value, String label) {
+    final selected = _gender == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _gender = value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: selected
+                ? AppColors.primary.withValues(alpha: 0.06)
+                : AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: selected ? AppColors.primary : AppColors.border,
+              width: selected ? 1.5 : 1,
+            ),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: selected ? AppColors.primary : AppColors.textPrimary,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRegionDropdown() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _region,
+          isExpanded: true,
+          hint: Text(
+            '都道府県を選択',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textTertiary,
+            ),
+          ),
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: AppColors.textTertiary,
+          ),
+          items: _prefectures
+              .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+              .toList(),
+          onChanged: (v) => setState(() => _region = v),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBirthDatePicker() {
+    return GestureDetector(
+      onTap: _pickBirthDate,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.calendar_today_outlined,
+              size: 20,
+              color: AppColors.textTertiary,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              _birthDate != null
+                  ? DateFormat('yyyy/MM/dd').format(_birthDate!)
+                  : '生年月日を選択',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: _birthDate != null
+                    ? AppColors.textPrimary
+                    : AppColors.textTertiary,
+              ),
+            ),
+          ],
         ),
       ),
     );

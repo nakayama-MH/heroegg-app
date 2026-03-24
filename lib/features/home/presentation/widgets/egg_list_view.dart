@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/widgets/egg_card.dart';
 import '../../models/egg_facility.dart';
 
@@ -20,6 +21,7 @@ class EggListView extends StatelessWidget {
           address: facility.address,
           imageUrl: facility.imageUrl,
           distance: facility.distance != null ? facility.distanceText : null,
+          onTap: () => context.push('/facility/${facility.id}'),
         );
       },
     );

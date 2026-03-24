@@ -82,28 +82,38 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
         ),
-        title: Text('お問い合わせ', style: AppTextStyles.headlineSmall),
+        title: const Text('お問い合わせ'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('お問い合わせ種別', style: AppTextStyles.labelLarge),
+              Text(
+                'お問い合わせ種別',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: AppColors.border),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _inquiryType,
                     isExpanded: true,
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: AppColors.textTertiary,
+                    ),
                     items: const [
                       DropdownMenuItem(
                         value: 'general',
@@ -170,8 +180,8 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
               ),
               const SizedBox(height: 32),
               SizedBox(
-                height: 52,
-                child: ElevatedButton(
+                height: 50,
+                child: FilledButton(
                   onPressed: isLoading ? null : _handleSubmit,
                   child: isLoading
                       ? const SizedBox(

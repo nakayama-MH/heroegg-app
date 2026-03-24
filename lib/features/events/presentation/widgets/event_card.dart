@@ -34,44 +34,43 @@ class EventCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(14),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: event.peetixUrl != null ? () => _openPeetix(context) : null,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ステータス
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
+                    width: 6,
+                    height: 6,
                     decoration: BoxDecoration(
                       color: event.isUpcoming
-                          ? AppColors.primary.withValues(alpha: 0.1)
-                          : AppColors.textSecondary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                          ? AppColors.success
+                          : AppColors.textTertiary,
+                      shape: BoxShape.circle,
                     ),
-                    child: Text(
-                      event.isUpcoming ? '開催予定' : '終了',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: event.isUpcoming
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    event.isUpcoming ? '開催予定' : '終了',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: event.isUpcoming
+                          ? AppColors.success
+                          : AppColors.textTertiary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Text(
                 event.title,
                 style: AppTextStyles.titleMedium,
@@ -79,45 +78,25 @@ class EventCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.calendar_today_outlined,
-                    size: 14,
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    dateFormat.format(event.eventDate),
-                    style: AppTextStyles.bodySmall,
-                  ),
-                ],
+              Text(
+                dateFormat.format(event.eventDate),
+                style: AppTextStyles.bodySmall,
               ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.location_on_outlined,
-                    size: 14,
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      event.locationName,
-                      style: AppTextStyles.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 2),
+              Text(
+                event.locationName,
+                style: AppTextStyles.bodySmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               if (event.description.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 Text(
                   event.description,
-                  style: AppTextStyles.bodyMedium,
-                  maxLines: 3,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -128,14 +107,15 @@ class EventCard extends StatelessWidget {
                   children: [
                     Text(
                       'Peetixで詳細を見る',
-                      style: AppTextStyles.labelLarge.copyWith(
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 2),
                     const Icon(
-                      Icons.open_in_new_rounded,
-                      size: 16,
+                      Icons.arrow_forward_rounded,
+                      size: 14,
                       color: AppColors.primary,
                     ),
                   ],

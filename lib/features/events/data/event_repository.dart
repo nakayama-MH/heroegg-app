@@ -7,11 +7,12 @@ class EventRepository {
 
   final SupabaseClient _client;
 
+  /// 全イベント取得（upcoming → completed の順）
   Future<List<PeetixEvent>> getEvents() async {
     final response = await _client
         .from(SupabaseConstants.peetixEventsTable)
         .select()
-        .eq('status', 'active')
+        .neq('status', 'cancelled')
         .order('event_date', ascending: true);
 
     return (response as List)
@@ -19,6 +20,7 @@ class EventRepository {
         .toList();
   }
 
+  /// 今後のイベントのみ
   Future<List<PeetixEvent>> getUpcomingEvents() async {
     final response = await _client
         .from(SupabaseConstants.peetixEventsTable)

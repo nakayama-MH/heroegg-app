@@ -56,17 +56,43 @@ final nearbyFacilitiesProvider =
     FutureProvider<List<EggFacility>>((ref) async {
   final locationState = ref.watch(userLocationProvider);
   final repository = ref.watch(eggRepositoryProvider);
-
   final position = locationState.valueOrNull;
 
   if (position != null) {
-    return repository.getNearbyFacilities(
+    final nearby = await repository.getNearbyFacilities(
       latitude: position.latitude,
       longitude: position.longitude,
     );
+    // 近くに施設がない場合は全施設を表示
+    if (nearby.isEmpty) {
+      return repository.getAllFacilities();
+    }
+    return nearby;
   } else {
     return repository.getAllFacilities();
   }
+});
+
+final facilityDetailProvider =
+    FutureProvider.family<EggFacility?, String>((ref, id) {
+  return ref.watch(eggRepositoryProvider).getFacilityById(id);
+});
+
+final facilitySearchQueryProvider = StateProvider<String>((ref) => '');
+
+final filteredFacilitiesProvider =
+    Provider<AsyncValue<List<EggFacility>>>((ref) {
+  final facilitiesAsync = ref.watch(nearbyFacilitiesProvider);
+  final query = ref.watch(facilitySearchQueryProvider).toLowerCase();
+
+  return facilitiesAsync.whenData((facilities) {
+    if (query.isEmpty) return facilities;
+    return facilities
+        .where((f) =>
+            f.name.toLowerCase().contains(query) ||
+            f.address.toLowerCase().contains(query))
+        .toList();
+  });
 });
 
 final homeViewModeProvider = StateProvider<HomeViewMode>((ref) {

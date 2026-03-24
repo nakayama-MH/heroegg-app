@@ -26,10 +26,21 @@ class EggRepository {
         .toList();
   }
 
+  Future<EggFacility?> getFacilityById(String id) async {
+    final response = await _client
+        .from(SupabaseConstants.eggFacilitiesTable)
+        .select('id, name, description, address, latitude, longitude, image_url')
+        .eq('id', id)
+        .maybeSingle();
+
+    if (response == null) return null;
+    return EggFacility.fromJson(response);
+  }
+
   Future<List<EggFacility>> getAllFacilities() async {
     final response = await _client
         .from(SupabaseConstants.eggFacilitiesTable)
-        .select()
+        .select('id, name, description, address, latitude, longitude, image_url')
         .order('name');
 
     return (response as List)
