@@ -15,7 +15,7 @@
 import { chromium, type Page } from "playwright";
 import { createClient } from "@supabase/supabase-js";
 
-const PEATIX_URL = "https://meta-heroes.peatix.com/";
+const PEATIX_URL = "https://meta-heroes.peatix.com/events";
 
 interface PeatixEvent {
   peatix_event_id: string;
@@ -38,13 +38,31 @@ async function scrapePeatixEvents(): Promise<PeatixEvent[]> {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     locale: "ja-JP",
+    timezoneId: "Asia/Tokyo",
+    geolocation: { latitude: 34.6937, longitude: 135.5023 },
+    permissions: ["geolocation"],
     userAgent:
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    extraHTTPHeaders: {
+      "Accept-Language": "ja-JP,ja;q=0.9",
+    },
   });
   const page = await context.newPage();
 
   try {
     await page.goto(PEATIX_URL, { waitUntil: "networkidle", timeout: 30000 });
+
+    // USリダイレクトされた場合、日本語ページに戻す
+    const currentUrl = page.url();
+    if (currentUrl.includes("/us/") || currentUrl.includes("/en/")) {
+      console.log("⚠️  USリダイレクトを検出、日本語ページに再アクセスします");
+      // グループIDを抽出して日本語版URLにアクセス
+      const groupMatch = currentUrl.match(/group\/(\d+)/);
+      const fallbackUrl = groupMatch
+        ? `https://peatix.com/group/${groupMatch[1]}/events`
+        : PEATIX_URL;
+      await page.goto(fallbackUrl, { waitUntil: "networkidle", timeout: 30000 });
+    }
 
     // イベントリストが描画されるまで待機
     await page.waitForSelector('[class*="event"], a[href*="/event/"]', {

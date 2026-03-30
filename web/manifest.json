@@ -1,11 +1,11 @@
 {
-    "name": "heroegg",
-    "short_name": "heroegg",
+    "name": "HeroEggオフィシャルアプリ",
+    "short_name": "HeroEggオフィシャルアプリ",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F6F7FA",
+    "theme_color": "#2E9AB2",
+    "description": "HeroEgg - コワーキング/コミュニティスペース発見アプリ",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

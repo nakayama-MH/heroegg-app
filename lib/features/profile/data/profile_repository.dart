@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/constants/supabase_constants.dart';
@@ -27,14 +27,14 @@ class ProfileRepository {
         .eq('id', profile.id);
   }
 
-  Future<String> uploadAvatar(String userId, File imageFile) async {
-    final ext = imageFile.path.split('.').last.toLowerCase();
+  Future<String> uploadAvatar(String userId, Uint8List bytes, String ext) async {
     final path = '$userId/avatar.$ext';
+    final mimeExt = ext == 'jpg' ? 'jpeg' : ext;
 
-    await _client.storage.from('avatars').upload(
+    await _client.storage.from('avatars').uploadBinary(
           path,
-          imageFile,
-          fileOptions: const FileOptions(upsert: true),
+          bytes,
+          fileOptions: FileOptions(upsert: true, contentType: 'image/$mimeExt'),
         );
 
     final url = _client.storage.from('avatars').getPublicUrl(path);

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/utils/validators.dart';
@@ -40,6 +39,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   String? _gender;
   String? _region;
   DateTime? _birthDate;
+  int? _birthYear;
+  int? _birthMonth;
+  int? _birthDay;
 
   @override
   void dispose() {
@@ -51,27 +53,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.dispose();
   }
 
-  Future<void> _pickBirthDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _birthDate ?? DateTime(2000, 1, 1),
-      firstDate: DateTime(1920),
-      lastDate: now,
-      locale: const Locale('ja'),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: AppColors.primary,
-                ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() => _birthDate = picked);
+  void _updateBirthDate() {
+    if (_birthYear != null && _birthMonth != null && _birthDay != null) {
+      final maxDay = DateTime(_birthYear!, _birthMonth! + 1, 0).day;
+      final day = _birthDay! > maxDay ? maxDay : _birthDay!;
+      setState(() {
+        _birthDay = day;
+        _birthDate = DateTime(_birthYear!, _birthMonth!, day);
+      });
     }
   }
 
@@ -408,36 +397,82 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Widget _buildBirthDatePicker() {
-    return GestureDetector(
-      onTap: _pickBirthDate,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.calendar_today_outlined,
-              size: 20,
-              color: AppColors.textTertiary,
+    final now = DateTime.now();
+    final years = List.generate(now.year - 1920 + 1, (i) => now.year - i);
+    final months = List.generate(12, (i) => i + 1);
+    final maxDay = (_birthYear != null && _birthMonth != null)
+        ? DateTime(_birthYear!, _birthMonth! + 1, 0).day
+        : 31;
+    final days = List.generate(maxDay, (i) => i + 1);
+
+    return Row(
+      children: [
+        // 年
+        Expanded(
+          flex: 3,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.border),
             ),
-            const SizedBox(width: 12),
-            Text(
-              _birthDate != null
-                  ? DateFormat('yyyy/MM/dd').format(_birthDate!)
-                  : '生年月日を選択',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: _birthDate != null
-                    ? AppColors.textPrimary
-                    : AppColors.textTertiary,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: _birthYear,
+                isExpanded: true,
+                hint: Text('年', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary)),
+                items: years.map((y) => DropdownMenuItem(value: y, child: Text('$y'))).toList(),
+                onChanged: (v) { setState(() => _birthYear = v); _updateBirthDate(); },
               ),
             ),
-          ],
+          ),
         ),
-      ),
+        const SizedBox(width: 8),
+        // 月
+        Expanded(
+          flex: 2,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: _birthMonth,
+                isExpanded: true,
+                hint: Text('月', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary)),
+                items: months.map((m) => DropdownMenuItem(value: m, child: Text('$m'))).toList(),
+                onChanged: (v) { setState(() => _birthMonth = v); _updateBirthDate(); },
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        // 日
+        Expanded(
+          flex: 2,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: _birthDay,
+                isExpanded: true,
+                hint: Text('日', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary)),
+                items: days.map((d) => DropdownMenuItem(value: d, child: Text('$d'))).toList(),
+                onChanged: (v) { setState(() => _birthDay = v); _updateBirthDate(); },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

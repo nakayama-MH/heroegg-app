@@ -9,5 +9,5 @@ final eventRepositoryProvider = Provider<EventRepository>((ref) {
 
 final eventsProvider = FutureProvider<List<PeetixEvent>>((ref) async {
   final repository = ref.watch(eventRepositoryProvider);
-  return repository.getUpcomingEvents();
+  return repository.getEvents();
 });

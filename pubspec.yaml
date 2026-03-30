@@ -1,5 +1,5 @@
 name: heroegg
-description: "HeroEgg - コワーキング/コミュニティスペース発見アプリ"
+description: "HeroEggオフィシャルアプリ - コワーキング/コミュニティスペース発見アプリ"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -8,6 +8,8 @@ environment:
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
@@ -24,7 +26,6 @@ dependencies:
 
   # 位置情報
   geolocator: ^13.0.0
-  permission_handler: ^11.3.0
 
   # 地図
   flutter_map: ^7.0.0
@@ -53,7 +54,7 @@ dependencies:
   shared_preferences: ^2.3.0
 
   # 日付
-  intl: ^0.19.0
+  intl: ^0.20.2
 
   # 環境変数
   flutter_dotenv: ^5.2.1
