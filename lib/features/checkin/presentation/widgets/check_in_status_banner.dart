@@ -54,8 +54,12 @@ class _CheckInStatusBannerState extends ConsumerState<CheckInStatusBanner> {
               margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
               padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.06),
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
+                boxShadow: AppColors.shadowSm,
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                ),
               ),
               child: Row(
                 children: [

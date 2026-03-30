@@ -5,7 +5,7 @@ import 'app_colors.dart';
 class AppTextStyles {
   AppTextStyles._();
 
-  static TextStyle get _base => GoogleFonts.notoSansJp(
+  static TextStyle get _base => GoogleFonts.inter(
         color: AppColors.textPrimary,
       );
 

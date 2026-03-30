@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,8 +15,10 @@ import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/contact/presentation/contact_screen.dart';
 import '../../features/checkin/presentation/qr_scanner_screen.dart';
+import '../../features/checkin/presentation/qr_scanner_web_screen.dart';
 import '../../features/checkin/presentation/check_in_history_screen.dart';
 import '../../features/home/presentation/facility_detail_screen.dart';
+import '../../features/analytics/presentation/analytics_screen.dart';
 import '../../features/home/presentation/facility_qr_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -49,7 +52,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoggedIn = session != null;
       final isAuthRoute = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register' ||
-          state.matchedLocation == '/password-reset';
+          state.matchedLocation == '/password-reset' ||
+          state.matchedLocation == '/auth/callback';
 
       if (!isLoggedIn && !isAuthRoute) {
         return '/login';
@@ -80,14 +84,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ContactScreen(),
       ),
       GoRoute(
+        path: '/auth/callback',
+        builder: (context, state) => const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      ),
+      GoRoute(
         path: '/scan',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const QrScannerScreen(),
+        builder: (context, state) =>
+            kIsWeb ? const QrScannerWebScreen() : const QrScannerScreen(),
       ),
       GoRoute(
         path: '/checkin-history',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const CheckInHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/analytics',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AnalyticsScreen(),
       ),
       GoRoute(
         path: '/facility/:id',

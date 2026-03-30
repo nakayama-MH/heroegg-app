@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -56,16 +57,46 @@ class SettingsScreen extends ConsumerWidget {
                   }
                 },
               ),
-              onTap: () => Geolocator.openAppSettings(),
+              onTap: () {
+                if (kIsWeb) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('ブラウザの設定から位置情報の許可を変更してください')),
+                  );
+                } else {
+                  Geolocator.openAppSettings();
+                }
+              },
             ),
             _buildTile(
               icon: Icons.notifications_outlined,
               title: '通知設定',
               subtitle: 'プッシュ通知の設定',
-              onTap: () => Geolocator.openAppSettings(),
+              onTap: () {
+                if (kIsWeb) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('ブラウザの設定から通知の許可を変更してください')),
+                  );
+                } else {
+                  Geolocator.openAppSettings();
+                }
+              },
               isLast: true,
             ),
           ]),
+          // 管理者向け: 分析ダッシュボード
+          if (profileAsync.valueOrNull?.isStaffOrAdmin == true) ...[
+            const SizedBox(height: 24),
+            _buildSectionHeader('管理'),
+            _buildGroup([
+              _buildTile(
+                icon: Icons.analytics_rounded,
+                title: '分析ダッシュボード',
+                subtitle: '会員・チェックイン・イベント統計',
+                onTap: () => context.push('/analytics'),
+                isLast: true,
+              ),
+            ]),
+          ],
           const SizedBox(height: 24),
           _buildSectionHeader('サポート'),
           _buildGroup([
@@ -122,6 +153,7 @@ class SettingsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: AppColors.shadowSm,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(children: children),

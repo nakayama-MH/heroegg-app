@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthRepository {
@@ -9,7 +10,9 @@ class AuthRepository {
 
   Stream<AuthState> get authStateChanges => _auth.onAuthStateChange;
 
-  static const _redirectUrl = 'io.heroegg://login-callback';
+  static String get _redirectUrl => kIsWeb
+      ? 'https://app.heroegg.com/auth/callback'
+      : 'io.heroegg://login-callback';
 
   Future<AuthResponse> signUp({
     required String email,

@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -298,6 +297,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: AppColors.shadowSm,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(children: children),
@@ -416,14 +416,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       width: 88,
       height: 88,
       decoration: BoxDecoration(
-        color: AppColors.surfaceDim,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primary.withValues(alpha: 0.15),
+            AppColors.primary.withValues(alpha: 0.06),
+          ],
+        ),
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
       child: Text(
         (profile.displayName ?? profile.email).substring(0, 1).toUpperCase(),
         style: AppTextStyles.headlineLarge.copyWith(
-          color: AppColors.textSecondary,
+          color: AppColors.primary,
           fontSize: 32,
         ),
       ),
@@ -442,12 +449,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt_rounded,
-                    color: AppColors.primary),
-                title: const Text('カメラで撮影'),
-                onTap: () => Navigator.pop(context, ImageSource.camera),
-              ),
+              if (!kIsWeb)
+                ListTile(
+                  leading: const Icon(Icons.camera_alt_rounded,
+                      color: AppColors.primary),
+                  title: const Text('カメラで撮影'),
+                  onTap: () => Navigator.pop(context, ImageSource.camera),
+                ),
               ListTile(
                 leading: const Icon(Icons.photo_library_rounded,
                     color: AppColors.primary),
@@ -474,9 +482,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     setState(() => _isUploadingAvatar = true);
     try {
+      final bytes = await picked.readAsBytes();
+      final ext = picked.name.split('.').last.toLowerCase();
       await ref
           .read(avatarUploadProvider.notifier)
-          .upload(File(picked.path));
+          .upload(bytes, ext);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

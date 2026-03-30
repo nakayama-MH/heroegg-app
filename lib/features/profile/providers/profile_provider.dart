@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/supabase_provider.dart';
@@ -31,14 +31,14 @@ class AvatarUploadNotifier extends StateNotifier<AsyncValue<void>> {
 
   final Ref _ref;
 
-  Future<String> upload(File imageFile) async {
+  Future<String> upload(Uint8List bytes, String ext) async {
     state = const AsyncValue.loading();
     try {
       final user = _ref.read(currentUserProvider);
       if (user == null) throw Exception('ログインが必要です');
 
       final repository = _ref.read(profileRepositoryProvider);
-      final url = await repository.uploadAvatar(user.id, imageFile);
+      final url = await repository.uploadAvatar(user.id, bytes, ext);
       _ref.invalidate(profileProvider);
       state = const AsyncValue.data(null);
       return url;

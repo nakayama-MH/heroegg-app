@@ -68,9 +68,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const CheckInStatusBanner(),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-            child: Text(
-              '近くのEgg施設',
-              style: AppTextStyles.headlineSmall,
+            child: Row(
+              children: [
+                Text(
+                  '近くのEgg施設',
+                  style: AppTextStyles.headlineSmall,
+                ),
+                const SizedBox(width: 8),
+                if (facilitiesAsync.valueOrNull != null &&
+                    facilitiesAsync.valueOrNull!.isNotEmpty)
+                  Text(
+                    '${facilitiesAsync.valueOrNull!.length}',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+              ],
             ),
           ),
           Expanded(

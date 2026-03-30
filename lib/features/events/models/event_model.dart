@@ -36,4 +36,19 @@ class PeetixEvent {
   }
 
   bool get isUpcoming => eventDate.isAfter(DateTime.now());
+
+  String get area {
+    final loc = locationName.toLowerCase();
+    if (loc.contains('オンライン') || loc.contains('online')) return 'オンライン';
+    if (loc.contains('大阪') || loc.contains('なんば') || loc.contains('梅田') ||
+        loc.contains('京都') || loc.contains('神戸') || loc.contains('兵庫') ||
+        loc.contains('奈良') || loc.contains('滋賀') || loc.contains('和歌山') ||
+        loc.contains('関西') || loc.contains('kansai')) return '関西';
+    if (loc.contains('東京') || loc.contains('渋谷') || loc.contains('新宿') ||
+        loc.contains('品川') || loc.contains('池袋') || loc.contains('六本木') ||
+        loc.contains('神奈川') || loc.contains('横浜') || loc.contains('千葉') ||
+        loc.contains('埼玉') || loc.contains('関東') || loc.contains('kanto')) return '関東';
+    if (loc.isEmpty) return 'その他';
+    return 'その他';
+  }
 }

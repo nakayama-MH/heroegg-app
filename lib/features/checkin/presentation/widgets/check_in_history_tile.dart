@@ -30,6 +30,7 @@ class CheckInHistoryTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: AppColors.shadowSm,
         ),
         child: Row(
           children: [

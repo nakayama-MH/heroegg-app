@@ -107,6 +107,7 @@ class CheckInHistoryScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: AppColors.shadowSm,
       ),
       child: Row(
         children: [
@@ -126,8 +127,8 @@ class CheckInHistoryScreen extends ConsumerWidget {
         children: [
           Text(
             value,
-            style: AppTextStyles.headlineSmall.copyWith(
-              color: AppColors.textPrimary,
+            style: AppTextStyles.headlineMedium.copyWith(
+              color: AppColors.primary,
             ),
           ),
           const SizedBox(height: 2),
