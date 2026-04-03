@@ -14,5 +14,7 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
 });
 
 final currentUserProvider = Provider<User?>((ref) {
+  // 認証状態の変更を監視して、ログイン切替時にユーザー情報を更新する
+  ref.watch(authStateProvider);
   return ref.watch(supabaseAuthProvider).currentUser;
 });

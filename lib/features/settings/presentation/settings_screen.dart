@@ -101,16 +101,10 @@ class SettingsScreen extends ConsumerWidget {
           _buildSectionHeader('サポート'),
           _buildGroup([
             _buildTile(
-              icon: Icons.help_outline_rounded,
-              title: 'お問い合わせ',
-              subtitle: '一般のお問い合わせ・共創パートナー募集',
-              onTap: () => context.push('/contact'),
-            ),
-            _buildTile(
               icon: Icons.info_outline_rounded,
               title: 'アプリ情報',
               subtitle: 'バージョン 1.0.0',
-              onTap: () {},
+              onTap: () => _showAppInfoDialog(context),
               isLast: true,
             ),
           ]),
@@ -194,6 +188,63 @@ class SettingsScreen extends ConsumerWidget {
           const Divider(
               height: 1, indent: 54, endIndent: 16, color: AppColors.border),
       ],
+    );
+  }
+
+  void _showAppInfoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Image.asset('assets/images/logo_vertical.png', width: 100),
+            const SizedBox(height: 16),
+            Text(
+              'HeroEgg',
+              style: AppTextStyles.headlineSmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'オフィシャルアプリ',
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 20),
+            _infoRow('バージョン', '1.0.0'),
+            _infoRow('提供', '株式会社Meta Heroes'),
+            _infoRow('お問い合わせ', 'info@meta-heroes.io'),
+            _infoRow('公式サイト', 'heroegg.com'),
+            const SizedBox(height: 16),
+            Text(
+              '© 2026 Meta Heroes, Inc.',
+              style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiary),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('閉じる'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 90,
+            child: Text(label, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+          ),
+          Expanded(child: Text(value, style: AppTextStyles.bodySmall)),
+        ],
+      ),
     );
   }
 

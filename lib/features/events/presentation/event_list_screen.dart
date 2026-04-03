@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
+import '../../profile/providers/profile_provider.dart';
 import '../models/event_model.dart';
 import '../providers/event_provider.dart';
 import 'widgets/event_card.dart';
@@ -22,7 +24,7 @@ class _EventListScreenState extends ConsumerState<EventListScreen> {
   String _selectedArea = 'すべて';
   String _selectedStatus = 'すべて';
 
-  List<PeetixEvent> _applyFilters(List<PeetixEvent> events) {
+  List<Event> _applyFilters(List<Event> events) {
     var result = events.toList();
 
     // ステータスフィルター
@@ -49,11 +51,20 @@ class _EventListScreenState extends ConsumerState<EventListScreen> {
   @override
   Widget build(BuildContext context) {
     final eventsAsync = ref.watch(eventsProvider);
+    final profile = ref.watch(profileProvider).valueOrNull;
+    final isAdmin = profile?.isStaffOrAdmin ?? false;
 
     return Scaffold(
       appBar: AppBar(
         title: Text('イベント', style: AppTextStyles.headlineSmall),
       ),
+      floatingActionButton: isAdmin
+          ? FloatingActionButton(
+              onPressed: () => context.push('/events/create'),
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
       body: eventsAsync.when(
         data: (events) {
           if (events.isEmpty) {
@@ -73,6 +84,18 @@ class _EventListScreenState extends ConsumerState<EventListScreen> {
                       color: AppColors.textSecondary,
                     ),
                   ),
+                  if (isAdmin) ...[
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () => context.push('/events/create'),
+                      icon: const Icon(Icons.add),
+                      label: const Text('イベントを作成'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             );
@@ -127,7 +150,12 @@ class _EventListScreenState extends ConsumerState<EventListScreen> {
                           separatorBuilder: (_, __) =>
                               const SizedBox(height: 16),
                           itemBuilder: (context, index) {
-                            return EventCard(event: filtered[index]);
+                            return EventCard(
+                              event: filtered[index],
+                              onTap: () => context.push(
+                                '/events/${filtered[index].id}',
+                              ),
+                            );
                           },
                         ),
                 ),

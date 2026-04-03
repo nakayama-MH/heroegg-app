@@ -58,6 +58,7 @@ dependencies:
 
   # 環境変数
   flutter_dotenv: ^5.2.1
+  flutter_quill: ^11.5.0
 
 dev_dependencies:
   flutter_test:

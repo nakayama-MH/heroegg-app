@@ -1,14 +1,13 @@
-class PeetixEvent {
-  const PeetixEvent({
+class Event {
+  const Event({
     required this.id,
     required this.title,
     required this.description,
     required this.eventDate,
     required this.locationName,
-    this.peatixEventId,
-    this.peetixUrl,
     this.imageUrl,
     required this.status,
+    this.createdBy,
   });
 
   final String id;
@@ -16,23 +15,33 @@ class PeetixEvent {
   final String description;
   final DateTime eventDate;
   final String locationName;
-  final String? peatixEventId;
-  final String? peetixUrl;
   final String? imageUrl;
   final String status;
+  final String? createdBy;
 
-  factory PeetixEvent.fromJson(Map<String, dynamic> json) {
-    return PeetixEvent(
+  factory Event.fromJson(Map<String, dynamic> json) {
+    return Event(
       id: json['id'] as String,
       title: json['title'] as String,
       description: json['description'] as String? ?? '',
       eventDate: DateTime.parse(json['event_date'] as String),
       locationName: json['location_name'] as String? ?? '',
-      peatixEventId: json['peatix_event_id'] as String?,
-      peetixUrl: json['peetix_url'] as String?,
       imageUrl: json['image_url'] as String?,
       status: json['status'] as String? ?? 'active',
+      createdBy: json['created_by'] as String?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'event_date': eventDate.toIso8601String(),
+      'location_name': locationName,
+      'image_url': imageUrl,
+      'status': status,
+      'created_by': createdBy,
+    };
   }
 
   bool get isUpcoming => eventDate.isAfter(DateTime.now());
@@ -50,5 +59,25 @@ class PeetixEvent {
         loc.contains('埼玉') || loc.contains('関東') || loc.contains('kanto')) return '関東';
     if (loc.isEmpty) return 'その他';
     return 'その他';
+  }
+
+  Event copyWith({
+    String? title,
+    String? description,
+    DateTime? eventDate,
+    String? locationName,
+    String? imageUrl,
+    String? status,
+  }) {
+    return Event(
+      id: id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      eventDate: eventDate ?? this.eventDate,
+      locationName: locationName ?? this.locationName,
+      imageUrl: imageUrl ?? this.imageUrl,
+      status: status ?? this.status,
+      createdBy: createdBy,
+    );
   }
 }

@@ -1,32 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../models/event_model.dart';
+import '../../utils/quill_utils.dart';
 
 class EventCard extends StatelessWidget {
-  const EventCard({super.key, required this.event});
+  const EventCard({super.key, required this.event, this.onTap});
 
-  final PeetixEvent event;
-
-  Future<void> _openPeetix(BuildContext context) async {
-    if (event.peetixUrl == null) return;
-    final uri = Uri.parse(event.peetixUrl!);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('リンクを開けませんでした'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
+  final Event event;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +25,7 @@ class EventCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: event.peetixUrl != null ? () => _openPeetix(context) : null,
+        onTap: onTap,
         borderRadius: BorderRadius.circular(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +128,7 @@ class EventCard extends StatelessWidget {
                   if (event.description.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     Text(
-                      event.description,
+                      plainTextFromDescription(event.description),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textTertiary,
                       ),
@@ -152,7 +136,7 @@ class EventCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                  if (event.peetixUrl != null && isUpcoming) ...[
+                  if (isUpcoming) ...[
                     const SizedBox(height: 14),
                     Align(
                       alignment: Alignment.centerRight,
@@ -167,7 +151,7 @@ class EventCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Peatixで詳細を見る',
+                              '詳細を見る',
                               style: AppTextStyles.labelSmall.copyWith(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w600,
